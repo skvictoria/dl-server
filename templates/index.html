@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Training Monitor with t-SNE</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            color: #333;
+        }
+        .metrics {
+            margin-bottom: 20px;
+        }
+        .metrics p {
+            font-size: 18px;
+            margin: 5px 0;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        #tsne-plot {
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: #fff;
+        }
+    </style>
+    <script>
+        // Function to fetch and display training metrics
+        function fetchMetrics() {
+            fetch('/data')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('epoch').innerText = "Epoch: " + data.epoch;
+                    document.getElementById('loss').innerText = "Loss: " + data.loss.toFixed(4);
+                    document.getElementById('accuracy').innerText = "Accuracy: " + data.accuracy.toFixed(2) + "%";
+                });
+        }
+
+        // Function to fetch and display the t-SNE visualization
+        function fetchTSNEPlot() {
+            fetch('/tsne')
+                .then(response => response.text())  // Fetch HTML content for the t-SNE plot
+                .then(html => {
+                    document.getElementById('tsne-plot').innerHTML = html;
+                });
+        }
+
+        // Automatically refresh data every second
+        setInterval(fetchMetrics, 1000);  // Update training metrics every second
+        setInterval(fetchTSNEPlot, 5000); // Update t-SNE plot every 5 seconds
+    </script>
+</head>
+<body>
+    <h1>Training Monitor with Real-Time t-SNE Visualization</h1>
+
+    <!-- Training Metrics Section -->
+    <div class="metrics">
+        <p id="epoch">Epoch: 0</p>
+        <p id="loss">Loss: 0.0000</p>
+        <p id="accuracy">Accuracy: 0.00%</p>
+    </div>
+
+    <!-- t-SNE Visualization Section -->
+    <div class="container">
+        <h2>t-SNE Visualization</h2>
+        <div id="tsne-plot">
+            <p>Loading t-SNE plot...</p>
+        </div>
+    </div>
+</body>
+</html>
