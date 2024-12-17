@@ -8,8 +8,10 @@ import random
 import matplotlib.pyplot as plt
 import plotly.express as px
 import pandas as pd
+from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
+socketio = SocketIO(app, cors_allowed_origins="*")  # Enable WebSocket support
 
 # Global data storage for training information and embeddings
 training_data = {"epoch": 0, "loss": 0.0, "accuracy": 0.0}
@@ -43,6 +45,11 @@ def update_tsne():
         data = request.get_json()
         latest_embeddings = np.array(data['embeddings'])  # Update embeddings
         latest_labels = np.array(data['labels'])          # Update labels
+        # Generate t-SNE plot HTML
+        tsne_html = generate_tsne_plotly(latest_embeddings, latest_labels)
+
+        # Emit event to connected clients
+        socketio.emit('update_tsne', {'html': tsne_html})
         return jsonify({"status": "success"})
     except Exception as e:
         return jsonify({"status": "failure", "message": str(e)}), 400
